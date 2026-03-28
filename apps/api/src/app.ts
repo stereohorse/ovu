@@ -2,6 +2,7 @@ import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 
+import { registerHttpRoutes } from "./http/routes.js";
 import { registerTrpc } from "./trpc/plugin.js";
 
 export function buildApp() {
@@ -21,6 +22,7 @@ export function buildApp() {
     hook: "onRequest",
   });
 
+  registerHttpRoutes(app);
   registerTrpc(app);
 
   app.get("/health", async () => {
