@@ -39,6 +39,88 @@ export interface TaskSummary {
   capabilities: TaskCapabilities;
 }
 
+export interface AcceptanceCriterion {
+  id: string;
+  taskId: string;
+  text: string;
+  source: "user" | "system";
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommentAuthorSummary {
+  id: string;
+  displayName: string;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  authorType: "user" | "system" | "agent";
+  author: CommentAuthorSummary;
+  parentCommentId: string | null;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskCommentsPayload {
+  items: TaskComment[];
+}
+
+export interface TaskDetail extends TaskSummary {
+  description: string;
+  version: number;
+  createdBy: UserSummary;
+  acceptanceCriteria: AcceptanceCriterion[];
+}
+
+export interface CreateTaskInput {
+  title: string;
+  description: string;
+  priority: TaskPriority;
+}
+
+export interface UpdateTaskInput {
+  taskId: string;
+  title: string;
+  description: string;
+  priority: TaskPriority;
+}
+
+export interface AddAcceptanceCriterionInput {
+  taskId: string;
+  text: string;
+}
+
+export interface UpdateAcceptanceCriterionInput {
+  taskId: string;
+  criterionId: string;
+  text: string;
+}
+
+export interface DeleteAcceptanceCriterionInput {
+  taskId: string;
+  criterionId: string;
+}
+
+export interface ReorderAcceptanceCriteriaInput {
+  taskId: string;
+  orderedCriterionIds: string[];
+}
+
+export interface AddCommentInput {
+  taskId: string;
+  body: string;
+}
+
+export interface AddReplyInput {
+  taskId: string;
+  parentCommentId: string;
+  body: string;
+}
+
 export interface BoardColumn {
   status: TaskStatus;
   label: string;

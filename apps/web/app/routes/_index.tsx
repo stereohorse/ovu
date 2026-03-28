@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { TRPCClientErrorLike } from "@trpc/client";
 import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router";
 
 import type { Route } from "./+types/_index";
 
-import type { AppRouter } from "@ovu/trpc";
+import type { TaskPriority } from "@ovu/trpc";
 
+import { getApiErrorMessage, isUnauthorizedError } from "~/lib/errors";
 import { useTRPC } from "~/lib/trpc";
 
 export function meta() {
@@ -13,7 +14,7 @@ export function meta() {
     { title: "ovu board" },
     {
       name: "description",
-      content: "Sign in to load the MVP task board from the backend.",
+      content: "Create work, refine tasks, and move through the MVP board.",
     },
   ];
 }
@@ -21,6 +22,7 @@ export function meta() {
 export default function Home() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const bootstrapQuery = useQuery({
     ...trpc.app.bootstrap.queryOptions(),
     retry: false,
@@ -33,6 +35,10 @@ export default function Home() {
   const systemStatus = useQuery(trpc.system.status.queryOptions());
   const [email, setEmail] = useState("user@example.com");
   const [password, setPassword] = useState("secret");
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newTaskPriority, setNewTaskPriority] =
+    useState<TaskPriority>("medium");
 
   const loginMutation = useMutation({
     mutationFn: async () => {
@@ -73,6 +79,18 @@ export default function Home() {
     },
   });
 
+  const createTaskMutation = useMutation({
+    ...trpc.task.create.mutationOptions({
+      onSuccess: async (task) => {
+        setNewTaskTitle("");
+        setNewTaskDescription("");
+        setNewTaskPriority("medium");
+        await queryClient.invalidateQueries();
+        navigate(`/tasks/${task.id}`);
+      },
+    }),
+  });
+
   const isSignedOut = isUnauthorizedError(bootstrapQuery.error);
   const boardStats = useMemo(() => {
     if (!boardQuery.data) {
@@ -105,12 +123,12 @@ export default function Home() {
             <p className="eyebrow">ovu MVP</p>
             <h1>Sign in and step into the live board.</h1>
             <p className="lede">
-              This first runnable slice restores the session model, loads typed
-              bootstrap data, and renders the kanban board from backend data.
+              This slice restores the session model, loads typed bootstrap data,
+              and gives you an editable task planning surface for `todo` work.
             </p>
             <div className="pill-row" aria-label="Current integration status">
               <span className="pill">Session cookies</span>
-              <span className="pill">Typed board query</span>
+              <span className="pill">Typed tRPC</span>
               <span className="pill">Seeded MVP data</span>
             </div>
           </div>
@@ -192,8 +210,8 @@ export default function Home() {
           <p className="eyebrow">Authenticated workspace</p>
           <h1>Board loaded for {bootstrapData.user.displayName}.</h1>
           <p className="lede">
-            The app bootstrap is coming from the backend, and the board is
-            grouped by workflow state from live API data.
+            Create a task, open its detail route, and keep refining the plan
+            while the work remains in <code>todo</code>.
           </p>
         </div>
         <div className="topbar-actions">
@@ -234,7 +252,9 @@ export default function Home() {
           <article className="panel stat-card">
             <span>Realtime</span>
             <strong>{bootstrapData.config.realtime.provider}</strong>
-            <p>Socket delivery is planned for the next slice.</p>
+            <p>
+              Live sync comes later; this slice focuses on persisted editing.
+            </p>
           </article>
           <article className="panel stat-card">
             <span>Workflow lanes</span>
@@ -260,6 +280,72 @@ export default function Home() {
             </p>
           ) : null}
         </div>
+
+        <section className="panel create-task-panel">
+          <div>
+            <p className="eyebrow">Create task</p>
+            <h3>Start new work in the editable planning lane.</h3>
+            <p>
+              New tasks open directly in their dedicated detail screen so you
+              can refine the brief, acceptance criteria, and discussion.
+            </p>
+          </div>
+          <form
+            className="task-form task-form--create"
+            onSubmit={(event) => {
+              event.preventDefault();
+              createTaskMutation.mutate({
+                title: newTaskTitle,
+                description: newTaskDescription,
+                priority: newTaskPriority,
+              });
+            }}
+          >
+            <label>
+              <span>Title</span>
+              <input
+                name="title"
+                onChange={(event) => setNewTaskTitle(event.target.value)}
+                placeholder="Make task authoring feel complete"
+                value={newTaskTitle}
+              />
+            </label>
+            <label>
+              <span>Description</span>
+              <textarea
+                name="description"
+                onChange={(event) => setNewTaskDescription(event.target.value)}
+                placeholder="Describe the user outcome, key context, and what should become clearer before implementation begins."
+                rows={4}
+                value={newTaskDescription}
+              />
+            </label>
+            <label>
+              <span>Priority</span>
+              <select
+                name="priority"
+                onChange={(event) =>
+                  setNewTaskPriority(event.target.value as TaskPriority)
+                }
+                value={newTaskPriority}
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+            <button disabled={createTaskMutation.isPending} type="submit">
+              {createTaskMutation.isPending
+                ? "Creating task..."
+                : "Create task"}
+            </button>
+          </form>
+          {createTaskMutation.isError ? (
+            <p className="feedback feedback--error">
+              {createTaskMutation.error.message}
+            </p>
+          ) : null}
+        </section>
 
         {boardQuery.isPending ? (
           <div className="panel panel--loading">
@@ -291,7 +377,11 @@ export default function Home() {
                 ) : (
                   <div className="task-list">
                     {column.tasks.map((task) => (
-                      <article className="task-card" key={task.id}>
+                      <Link
+                        className="task-card"
+                        key={task.id}
+                        to={`/tasks/${task.id}`}
+                      >
                         <div className="task-card__meta">
                           <span>{task.code}</span>
                           <span>{task.priority}</span>
@@ -300,6 +390,14 @@ export default function Home() {
                         <p>
                           Updated <code>{task.updatedAt}</code>
                         </p>
+                        <div className="task-card__capabilities">
+                          {task.capabilities.canEdit ? (
+                            <span className="pill pill--soft">Editable</span>
+                          ) : null}
+                          {task.capabilities.canComment ? (
+                            <span className="pill pill--soft">Comments on</span>
+                          ) : null}
+                        </div>
                         {task.currentStage ? (
                           <p className="task-card__stage">
                             Stage: <strong>{task.currentStage}</strong>
@@ -310,7 +408,7 @@ export default function Home() {
                             {task.lastError}
                           </p>
                         ) : null}
-                      </article>
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -321,27 +419,4 @@ export default function Home() {
       </section>
     </main>
   );
-}
-
-function isUnauthorizedError(error: unknown) {
-  return (
-    !!error &&
-    typeof error === "object" &&
-    "data" in error &&
-    (error as TRPCClientErrorLike<AppRouter>).data?.code === "UNAUTHORIZED"
-  );
-}
-
-async function getApiErrorMessage(response: Response) {
-  try {
-    const payload = (await response.json()) as {
-      error?: { message?: string };
-    };
-
-    return (
-      payload.error?.message ?? `Request failed with status ${response.status}.`
-    );
-  } catch {
-    return `Request failed with status ${response.status}.`;
-  }
 }

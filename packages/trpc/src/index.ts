@@ -5,14 +5,27 @@ export {
   taskStatuses,
 } from "./contracts.js";
 export type {
+  AcceptanceCriterion,
+  AddAcceptanceCriterionInput,
+  AddCommentInput,
+  AddReplyInput,
   AppConfigPayload,
   BoardColumn,
   BoardPayload,
   BootstrapPayload,
+  CommentAuthorSummary,
+  CreateTaskInput,
+  DeleteAcceptanceCriterionInput,
+  ReorderAcceptanceCriteriaInput,
+  TaskComment,
+  TaskCommentsPayload,
   TaskCapabilities,
+  TaskDetail,
   TaskPriority,
   TaskStatus,
   TaskSummary,
+  UpdateAcceptanceCriterionInput,
+  UpdateTaskInput,
   UserSummary,
 } from "./contracts.js";
 export { appRouter } from "./router.js";
