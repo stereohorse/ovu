@@ -1,0 +1,20 @@
+node_modules/
+.pnpm-store/
+.DS_Store
+
+# Build output
+build/
+dist/
+coverage/
+
+# React Router generated types
+.react-router/
+apps/*/.react-router/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local tool configuration
+.mise.local.toml

@@ -4,6 +4,59 @@
 
 The product gives users a real-time kanban board, a structured task workflow, and a permanent audit trail of discussions and system decisions. Users stay in control of task intent and approval, while the system handles task preparation, implementation orchestration, automated review loops, and repository operations.
 
+## Monorepo Layout
+
+The MVP now starts from a `pnpm` workspace monorepo so frontend and backend work can evolve together without reworking project setup on every slice.
+
+- `apps/web` - React Router Framework Mode app for the user-facing product UI;
+- `apps/api` - Fastify HTTP API for auth, board data, workflow actions, and realtime integration points;
+- `apps/worker` - worker stub reserved for orchestration and agent execution flows in later slices.
+
+Shared tooling lives at the workspace root through `mise.toml`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `biome.json`, and root scripts in `package.json`.
+
+## Local Setup
+
+### Prerequisites
+
+- [mise](https://mise.jdx.dev/) for tool version management;
+- the Node.js runtime defined in `mise.toml` (current latest LTS line);
+- `pnpm`, also managed through `mise`.
+
+### Install tools and dependencies
+
+```bash
+mise install
+pnpm install
+```
+
+### Start the workspace
+
+```bash
+pnpm dev
+```
+
+This starts:
+
+- web app: `http://localhost:5173`
+- API: `http://localhost:3001`
+
+Optional worker stub:
+
+```bash
+pnpm --filter @ovu/worker dev
+```
+
+### Common workspace commands
+
+```bash
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm dev:all
+```
+
+`pnpm dev:all` starts the web app, API, and worker stub together.
+
 ## Problem
 
 Non-developers often have ideas or requests for software changes but lack a direct, structured way to hand work to coding agents. Existing workflows usually depend on developers to translate requests, manage Git operations, coordinate review, and keep everyone updated on status.

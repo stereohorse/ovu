@@ -1,0 +1,21 @@
+{
+  "name": "ovu",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "pnpm run dev:web-api",
+    "dev:web-api": "pnpm exec concurrently -k -n web,api -c auto \"pnpm --filter @ovu/web dev\" \"pnpm --filter @ovu/api dev\"",
+    "dev:all": "pnpm exec concurrently -k -n web,api,worker -c auto \"pnpm --filter @ovu/web dev\" \"pnpm --filter @ovu/api dev\" \"pnpm --filter @ovu/worker dev\"",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm exec biome check .",
+    "format": "pnpm exec biome format --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "concurrently": "^9.2.1"
+  }
+}
