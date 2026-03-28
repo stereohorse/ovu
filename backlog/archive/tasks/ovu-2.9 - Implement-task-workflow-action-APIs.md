@@ -4,11 +4,9 @@ title: Implement task workflow action APIs
 status: To Do
 assignee: []
 created_date: '2026-03-26 05:22'
-updated_date: '2026-03-26 05:22'
+updated_date: '2026-03-26 07:50'
 labels: []
-dependencies:
-  - OVU-2.1
-  - OVU-2.5
+dependencies: []
 documentation:
   - docs/api-design.md
   - docs/engineering-spec.md

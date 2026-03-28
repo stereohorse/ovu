@@ -4,10 +4,9 @@ title: Implement task and board read-write APIs
 status: To Do
 assignee: []
 created_date: '2026-03-26 05:21'
-updated_date: '2026-03-26 05:22'
+updated_date: '2026-03-26 07:47'
 labels: []
 dependencies:
-  - OVU-2.1
   - OVU-2.8
 documentation:
   - docs/api-design.md

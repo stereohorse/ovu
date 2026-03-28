@@ -4,13 +4,12 @@ title: Add contract and integration tests for MVP API
 status: To Do
 assignee: []
 created_date: '2026-03-26 05:22'
-updated_date: '2026-03-26 05:22'
+updated_date: '2026-03-26 07:47'
 labels: []
 dependencies:
   - OVU-2.8
   - OVU-2.5
   - OVU-2.9
-  - OVU-2.4
   - OVU-2.3
   - OVU-2.2
   - OVU-2.6
