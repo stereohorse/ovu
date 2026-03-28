@@ -6,6 +6,8 @@ This document defines the MVP public API contract for `ovu`. It translates the p
 
 The API is intentionally REST-ish rather than purely resource-generic. Standard reads and edits use resource endpoints, while workflow transitions and retry operations use explicit action endpoints so business rules remain visible in the contract.
 
+For runtime frontend-backend interaction inside the monorepo web app, the implementation now prefers tRPC under `/trpc` as the primary application boundary. The REST shapes in this document remain the conceptual HTTP contract for operational or external-facing endpoints and for the broader API model described by the MVP docs.
+
 ## Design Goals
 
 - keep the public API aligned with task-centered product language;
@@ -34,6 +36,7 @@ This document does not expose internal backend-to-worker coordination, agent run
 ### Base Path
 
 - public HTTP API base path: `/api`;
+- application-facing typed procedure base path for the web app: `/trpc`;
 - JSON request and response bodies use `application/json`;
 - all timestamps use ISO 8601 UTC strings;
 - all primary public IDs use UUIDs;

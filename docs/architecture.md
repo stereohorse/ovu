@@ -53,13 +53,17 @@ The frontend should treat the backend as the source of truth for all workflow pe
 
 The backend API serves the frontend and enforces application rules. It is responsible for:
 
+- hosting the primary application-facing tRPC boundary used by the web app;
 - basic email/password authentication;
 - task, comment, and acceptance criteria CRUD;
 - validation of allowed state transitions;
 - readiness checks for transitions into `ready for implementation`;
 - returning task history, system decisions, retry history, and current execution state;
 - exposing endpoints for manual retry of the current failed stage;
+- keeping operational routes such as `/health` available as plain HTTP handlers;
 - publishing domain events to the real-time delivery layer.
+
+Application-facing frontend reads and writes should prefer typed tRPC procedures, while infrastructure and non-UI integration surfaces can remain plain HTTP endpoints.
 
 The backend API runs separately from the orchestrator worker and communicates through persisted state and domain events.
 

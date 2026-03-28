@@ -9,6 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { TrpcProvider } from "./providers/trpc-provider";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -53,7 +54,11 @@ export function HydrateFallback() {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <TrpcProvider>
+      <Outlet />
+    </TrpcProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

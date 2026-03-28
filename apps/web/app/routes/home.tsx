@@ -1,4 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
+
 import type { Route } from "./+types/home";
+
+import { useTRPC } from "~/lib/trpc";
 
 export function meta() {
   return [
@@ -8,6 +12,9 @@ export function meta() {
 }
 
 export default function Home() {
+  const trpc = useTRPC();
+  const systemStatus = useQuery(trpc.system.status.queryOptions());
+
   return (
     <main className="shell">
       <section className="hero panel">
@@ -31,6 +38,23 @@ export default function Home() {
             <span>API</span>
             <strong>Fastify</strong>
             <p>Health endpoint and API bootstrap running on port 3001.</p>
+          </article>
+          <article>
+            <span>API transport</span>
+            <strong>
+              {systemStatus.isSuccess
+                ? systemStatus.data.message
+                : systemStatus.isError
+                  ? "Connection failed"
+                  : "Connecting..."}
+            </strong>
+            <p>
+              {systemStatus.isSuccess
+                ? `Request ${systemStatus.data.requestId} served over ${systemStatus.data.transport}.`
+                : systemStatus.isError
+                  ? "The first typed tRPC query could not reach the API."
+                  : "The web app is loading the first typed backend query."}
+            </p>
           </article>
           <article>
             <span>Worker</span>
@@ -59,12 +83,17 @@ export default function Home() {
 
         <article className="panel">
           <p className="eyebrow">Next slices</p>
-          <h2>Ready for auth, board data, and execution flow.</h2>
+          <h2>Ready for typed app queries, auth, and execution flow.</h2>
           <p>
-            The workspace already separates frontend, backend, and worker
-            boundaries, includes shared TypeScript settings, and proxies API
-            traffic during local web development.
+            The workspace now shares a typed tRPC contract between the React
+            Router frontend and Fastify API while keeping operational HTTP
+            routes available during local development.
           </p>
+          {systemStatus.isSuccess ? (
+            <p>
+              Latest tRPC response at <code>{systemStatus.data.servedAt}</code>.
+            </p>
+          ) : null}
         </article>
       </section>
     </main>

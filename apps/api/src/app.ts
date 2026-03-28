@@ -2,9 +2,14 @@ import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 
+import { registerTrpc } from "./trpc/plugin.js";
+
 export function buildApp() {
   const app = Fastify({
     logger: true,
+    routerOptions: {
+      maxParamLength: 5000,
+    },
   });
 
   app.register(cors, {
@@ -15,6 +20,8 @@ export function buildApp() {
   app.register(cookie, {
     hook: "onRequest",
   });
+
+  registerTrpc(app);
 
   app.get("/health", async () => {
     return {
